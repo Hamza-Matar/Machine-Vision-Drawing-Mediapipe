@@ -113,7 +113,6 @@ class Window_draw(QMainWindow):
         capture = cv.VideoCapture(0)
         ptime = 0
         xy_list = []
-        blank = np.zeros((width, height, 3), 'uint8')
         x_1 = 0
         y_1 = 0
         x_2 = 0
@@ -129,6 +128,7 @@ class Window_draw(QMainWindow):
 
         canvas = pygame.Surface((width, height))
         canvas.fill((255, 0, 128))
+        canvas.set_colorkey((255, 0, 128))
         screen.fill((255, 0, 128))
         pygame.display.update()
 
@@ -207,21 +207,24 @@ class Window_draw(QMainWindow):
                         if shape_type == 'Line':
                             pygame.draw.line(canvas, pen_color, (x_1, y_1), (x_2, y_2), shape_thickness)
                             selected = False
-                        if shape_type == 'Rectangle ':
-                            _x_deference = x_1 - x_2
-                            _y_deference = y_1 - y_2
+                        if shape_type == 'Rectangle':
+                            top_left_x = min(x_1, x_2)
+                            top_left_y = min(y_1, y_2)
+                            rect_width = abs(x_1 - x_2)
+                            rect_height = abs(y_1 - y_2)
                             if is_filled:
-                                pygame.draw.rect(canvas, pen_color, (x_1, y_1, _x_deference, _y_deference))
+                                pygame.draw.rect(canvas, pen_color, (top_left_x, top_left_y, rect_width, rect_height))
                             if not is_filled:
-                                pygame.draw.rect(canvas, pen_color, (x_1, y_1, _x_deference, _y_deference),
+                                pygame.draw.rect(canvas, pen_color, (top_left_x, top_left_y, rect_width, rect_height),
                                                  shape_thickness)
                             selected = False
-            if is_canvas:
-                cv.imshow('Draw_Test', blank)
             if do_clear:
                 canvas.fill((255, 0, 128))
                 self.pushButton_3.setChecked(False)
-            screen.fill((255, 0, 128))
+            if is_canvas:
+                screen.fill((0, 0, 0))
+            if not is_canvas:
+                screen.fill((255, 0, 128))
             screen.blit(canvas, (0, 0))
             if len(hand_all_landmarks) > 0:
                 cursor_color = (255, 0, 0) if thumb_index_pos < 25 else (0, 255, 0)
@@ -236,6 +239,7 @@ class Window_draw(QMainWindow):
             if first:
                 cv.setWindowProperty('Image', cv.WND_PROP_TOPMOST, 1)
                 cv.moveWindow('Image', 1900, 900)
+                first = False
             cv.waitKey(1)
         capture.release()
         cv.destroyAllWindows()
