@@ -136,7 +136,6 @@ class Window_draw(QMainWindow):
         hands = mpHands.Hands(False, 1, 1, 0.5, 0.5)
         mpdraw = mp.solutions.drawing_utils
 
-        first = True
         while self.running:
             Is_true, frame = capture.read()
             flip_frame = flip(frame, 1)
@@ -236,10 +235,8 @@ class Window_draw(QMainWindow):
 
             pygame.display.update()
             cv.imshow('Image', hand_img)
-            if first:
-                cv.setWindowProperty('Image', cv.WND_PROP_TOPMOST, 1)
-                cv.moveWindow('Image', 1900, 900)
-                first = False
+            cv.setWindowProperty('Image', cv.WND_PROP_TOPMOST, 1)
+            cv.moveWindow('Image', 1900, 900)
             cv.waitKey(1)
         capture.release()
         cv.destroyAllWindows()
