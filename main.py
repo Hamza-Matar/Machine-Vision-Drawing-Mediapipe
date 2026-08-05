@@ -57,48 +57,166 @@ class Window_draw(QMainWindow):
         self.show()
 
     def UiComponents(self):
+        # 1. Create a Central Widget and Main Layout
+        central_widget = QWidget(self)
+        self.setCentralWidget(central_widget)
+        main_layout = QVBoxLayout(central_widget)
+        main_layout.setContentsMargins(0, 0, 0, 0)  # Flush to the edges
+        main_layout.setSpacing(0)
+
+        # 2. Create a "Toolbar" container for the top
+        toolbar_widget = QWidget(self)
+        toolbar_widget.setObjectName("ToolbarWidget")  # Named for specific CSS styling
+        toolbar_layout = QHBoxLayout(toolbar_widget)
+        toolbar_layout.setContentsMargins(15, 10, 15, 10)
+        toolbar_layout.setSpacing(15)
+
+        # 3. Create the Main Tool Buttons
         self.pushButton = QPushButton("Canvas", self)
-        self.pushButton.setGeometry(0, 0, 70, 70)
+        self.pushButton.setFixedSize(75, 70)
         self.pushButton.setCheckable(True)
         self.pushButton.setChecked(False)
+        toolbar_layout.addWidget(self.pushButton)
+
         self.pushButton_2 = QPushButton("Eraser", self)
-        self.pushButton_2.setGeometry(70, 0, 70, 70)
+        self.pushButton_2.setFixedSize(75, 70)
         self.pushButton_2.setCheckable(True)
         self.pushButton_2.setChecked(False)
+        toolbar_layout.addWidget(self.pushButton_2)
+
         self.pushButton_3 = QPushButton("Clear", self)
-        self.pushButton_3.setGeometry(140, 0, 70, 70)
-        self.pushButton_3.setCheckable(True)
+        self.pushButton_3.setFixedSize(75, 70)
+        self.pushButton_3.setCheckable(
+            True)  # Note: Clear usually acts as a trigger, not a toggle, but keeping your logic!
         self.pushButton_3.setChecked(False)
+        toolbar_layout.addWidget(self.pushButton_3)
+
         self.pushButton_4 = QPushButton("Shape", self)
-        self.pushButton_4.setGeometry(210, 0, 70, 70)
+        self.pushButton_4.setFixedSize(75, 70)
         self.pushButton_4.setCheckable(True)
         self.pushButton_4.setChecked(False)
-        # self.pushButton_5 = QPushButton("Read", self)
-        # self.pushButton_5.setGeometry(560, 0, 70, 70)
-        # self.pushButton_5.clicked.connect(self.read)
-        self.comboBox = QComboBox(self)
-        self.comboBox.setGeometry(420, 0, 140, 35)
-        self.comboBox.addItem("Brush")
-        # self.comboBox.addItem("Calligraphy_1")
-        # self.comboBox.addItem("Calligraphy_2")
-        self.comboBox.addItem("Air_brush")
+        toolbar_layout.addWidget(self.pushButton_4)
+
+        # Add a little spacing between tools and settings
+        toolbar_layout.addSpacing(20)
+
+        # 4. Shape Settings Group (Combobox on top, SpinBox + Checkbox on bottom)
+        shape_layout = QGridLayout()
+        shape_layout.setSpacing(8)
+
         self.comboBox_2 = QComboBox(self)
-        self.comboBox_2.setGeometry(280, 0, 140, 35)
+        self.comboBox_2.setMinimumHeight(30)
         self.comboBox_2.addItem("Circle")
         self.comboBox_2.addItem("Line")
         self.comboBox_2.addItem("Rectangle")
+        shape_layout.addWidget(self.comboBox_2, 0, 0, 1, 2)  # Spans 2 columns
+
         self.spinBox = QSpinBox(self)
-        self.spinBox.setGeometry(280, 35, 70, 35)
+        self.spinBox.setMinimumHeight(30)
         self.spinBox.setButtonSymbols(QAbstractSpinBox.UpDownArrows)
         self.spinBox.setValue(5)
+        shape_layout.addWidget(self.spinBox, 1, 0)
+
         self.checkBox = QCheckBox("Full", self)
-        self.checkBox.setGeometry(350, 35, 70, 35)
+        shape_layout.addWidget(self.checkBox, 1, 1)
+
+        toolbar_layout.addLayout(shape_layout)
+
+        # Add spacing between Shape settings and Brush settings
+        toolbar_layout.addSpacing(20)
+
+        # 5. Brush Settings Group (Combobox on top, SpinBox on bottom)
+        brush_layout = QGridLayout()
+        brush_layout.setSpacing(8)
+
+        self.comboBox = QComboBox(self)
+        self.comboBox.setMinimumHeight(30)
+        self.comboBox.addItem("Brush")
+        self.comboBox.addItem("Air_brush")
+        brush_layout.addWidget(self.comboBox, 0, 0)
+
         self.spinBox_2 = QSpinBox(self)
-        self.spinBox_2.setGeometry(420, 35, 70, 35)
-        self.spinBox_2.setValue(5)
+        self.spinBox_2.setMinimumHeight(30)
         self.spinBox_2.setButtonSymbols(QAbstractSpinBox.UpDownArrows)
-        self.comboBox.setCurrentIndex(0)
-        self.comboBox_2.setCurrentIndex(0)
+        self.spinBox_2.setValue(5)
+        brush_layout.addWidget(self.spinBox_2, 1, 0)
+
+        toolbar_layout.addLayout(brush_layout)
+
+        # Push everything to the left side
+        toolbar_layout.addStretch()
+
+        # Add the toolbar to the top of the main layout, and a stretch below it to push it up
+        main_layout.addWidget(toolbar_widget)
+        main_layout.addStretch()
+        # Note: Your actual drawing canvas widget would go where this `addStretch()` is!
+
+        # 6. Apply Modern Dark Mode Stylesheet
+        self.setStyleSheet("""
+            QMainWindow, QWidget {
+                background-color: #121212;
+                color: #E0E0E0;
+            }
+
+            /* Differentiate the toolbar background from the canvas area */
+            #ToolbarWidget {
+                background-color: #1E1E1E;
+                border-bottom: 1px solid #333333;
+            }
+
+            /* Tool Buttons */
+            QPushButton {
+                background-color: #2D2D30;
+                color: #E0E0E0;
+                font-weight: bold;
+                border: 1px solid #3E3E42;
+                border-radius: 6px;
+            }
+            QPushButton:hover {
+                background-color: #3E3E42;
+            }
+            /* The Active/Checked Tool State */
+            QPushButton:checked {
+                background-color: #007ACC;
+                color: white;
+                border: 1px solid #005C99;
+            }
+
+            /* Inputs: Dropdowns and Spinboxes */
+            QComboBox, QSpinBox {
+                background-color: #2D2D30;
+                color: #E0E0E0;
+                border: 1px solid #3E3E42;
+                border-radius: 4px;
+                padding-left: 5px;
+            }
+            QComboBox:hover, QSpinBox:hover {
+                border: 1px solid #007ACC;
+            }
+            QComboBox::drop-down {
+                border-left: 1px solid #3E3E42;
+                width: 20px;
+            }
+
+            /* Checkbox Styling */
+            QCheckBox {
+                font-weight: bold;
+            }
+            QCheckBox::indicator {
+                width: 16px;
+                height: 16px;
+                background-color: #2D2D30;
+                border: 1px solid #3E3E42;
+                border-radius: 3px;
+            }
+            QCheckBox::indicator:hover {
+                border: 1px solid #007ACC;
+            }
+            QCheckBox::indicator:checked {
+                background-color: #007ACC;
+                border: 1px solid #005C99;
+            }
+        """)
 
     def closeEvent(self, event):
         self.running = False
