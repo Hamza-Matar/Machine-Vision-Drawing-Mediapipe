@@ -144,12 +144,6 @@ class Window_draw(QMainWindow):
             ptime = ctime
             cv.putText(flip_frame, f'{int(fps)}', (20, 70), cv.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 3)
             hand_img, hand_all_landmarks, hand_special_landmark = hand_track(flip_frame, mpHands, hands, mpdraw)
-            if len(hand_all_landmarks) > 0:
-                xy_list.clear()
-                for hand_landmark in hand_all_landmarks:
-                    xy_list.append(hand_landmark[1])
-                index_x, index_y = hand_special_landmark[0][0]
-                h, w, c = flip_frame.shape
             is_canvas = self.pushButton.isChecked()
             pen_size = self.spinBox_2.value() * 10
             pen_color = (0, 0, 255)
@@ -162,13 +156,17 @@ class Window_draw(QMainWindow):
             shape_type = self.comboBox_2.currentText()
             is_filled = self.checkBox.isChecked()
             shape_thickness = self.spinBox.value()
-
             if len(hand_all_landmarks) > 0:
+                xy_list.clear()
+                for hand_landmark in hand_all_landmarks:
+                    xy_list.append(hand_landmark[1])
+                index_x, index_y = hand_special_landmark[0][0]
+                h, w, c = flip_frame.shape
                 xx, yy = hand_special_landmark[0][0]
                 thumb_x, thumb_y = hand_all_landmarks[4][1]
                 thumb_index_pos = sqrt(((thumb_x - xx) ** 2) + ((thumb_y - yy) ** 2))
-                x = int(index_x * (1 / w) * width)
-                y = int(index_y * (1 / h) * height)
+                x = int((index_x - 100) * (1 / (w - 200)) * width)
+                y = int((index_y - 100) * (1 / (h - 200)) * height)
                 if not do_shape:
                     if thumb_index_pos < 25:
                         if not is_eraser:
@@ -236,7 +234,10 @@ class Window_draw(QMainWindow):
             pygame.display.update()
             cv.imshow('Image', hand_img)
             cv.setWindowProperty('Image', cv.WND_PROP_TOPMOST, 1)
-            cv.moveWindow('Image', 1900, 900)
+            frame_h, frame_w, _ = hand_img.shape
+            target_x = width - frame_w
+            target_y = height - frame_h - 50
+            cv.moveWindow('Image', target_x, target_y)
             cv.waitKey(1)
         capture.release()
         cv.destroyAllWindows()
