@@ -13,7 +13,6 @@ from math import *
 import random
 import sys
 import mediapipe as mp
-import tkinter as tk
 
 
 def flip(pic, flip_code):
@@ -106,9 +105,9 @@ class Window_draw(QMainWindow):
         event.accept()
 
     def __main_loop(self):
-        root = tk.Tk()
-        width = root.winfo_screenwidth()
-        height = root.winfo_screenheight()
+        screen = QApplication.primaryScreen().geometry()
+        width = screen.width()
+        height = screen.height()
 
         capture = cv.VideoCapture(0)
         ptime = 0
